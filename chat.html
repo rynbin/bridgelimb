@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <title>BridgeLimb Chat</title>
   <script type="module">
-    import { Amplify, API, graphqlOperation } from 'https://esm.sh/aws-amplify';
+   import * as AmplifyLib from 'https://esm.sh/aws-amplify';
+   const { Amplify, API, graphqlOperation } = AmplifyLib;
+
 
     Amplify.configure({
       aws_appsync_graphqlEndpoint: 'https://eatc7bvd2zbenjcepbh7fgsexi.appsync-api.us-east-2.amazonaws.com/graphql',
