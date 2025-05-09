@@ -1,0 +1,2 @@
+/chat.html
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://esm.sh 'unsafe-eval'; connect-src https://*.amazonaws.com https://*.amazoncognito.com; style-src 'self' 'unsafe-inline'
