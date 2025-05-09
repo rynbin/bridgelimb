@@ -7,12 +7,15 @@
    import * as AmplifyLib from 'https://esm.sh/aws-amplify';
    const { Amplify, API, graphqlOperation } = AmplifyLib;
 
-
+  // ✅ Configure Amplify using direct AppSync browser config
     Amplify.configure({
-      aws_appsync_graphqlEndpoint: 'https://eatc7bvd2zbenjcepbh7fgsexi.appsync-api.us-east-2.amazonaws.com/graphql',
-      aws_appsync_region: 'us-east-2',
-      aws_appsync_authenticationType: 'API_KEY',
-      aws_appsync_apiKey: 'da2-7oz7npsvcvdb3oukllxg3c23le'
+      API: {
+        graphql_endpoint: 'https://eatc7bvd2zbenjcepbh7fgsexi.appsync-api.us-east-2.amazonaws.com/graphql',
+        graphql_endpoint_iam_region: 'us-east-2',
+        graphql_headers: async () => ({
+          'x-api-key': 'da2-7oz7npsvcvdb3oukllxg3c23le'
+        })
+      }
     });
 
     const chatRoomId = "123";
