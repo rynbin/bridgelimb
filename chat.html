@@ -9,16 +9,18 @@
   import { API, graphqlOperation } from 'https://esm.sh/aws-amplify@6.0.0/api';
 
   // Configure Amplify
-  Amplify.configure({
-    API: {
-      GraphQL: {
-        endpoint: 'https://YOUR-APPSYNC-ENDPOINT.amazonaws.com/graphql',
-        region: 'us-east-2',
-        defaultAuthMode: 'apiKey',
-        apiKey: 'YOUR_API_KEY'
-      }
+import { Amplify } from 'aws-amplify';
+
+Amplify.configure({
+  API: {
+    GraphQL: {
+      endpoint: 'https://eatc7bvd2zbenjcepbh7fgsexi.appsync-api.us-east-2.amazonaws.com/graphql',
+      region: 'us-east-2',
+      defaultAuthMode: 'apiKey',
+      apiKey: 'da2-7oz7npsvcvdb3oukllxg3c23le'
     }
-  });
+  }
+});
 
   // DOM references
   const form = document.getElementById("chat-form");
