@@ -3,84 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <title>BridgeLimb Chat</title>
-  <script type="module">
-   import * as AmplifyLib from 'https://esm.sh/aws-amplify';
-   const { Amplify, API, graphqlOperation } = AmplifyLib;
+<script type="module">
+  // Import Amplify core and the GraphQL API module
+  import { Amplify } from 'https://esm.sh/aws-amplify@6.0.0';
+  import { API, graphqlOperation } from 'https://esm.sh/aws-amplify@6.0.0/api';
 
-  // ✅ Configure Amplify using direct AppSync browser config
-    Amplify.configure({
-      API: {
-        graphql_endpoint: 'https://eatc7bvd2zbenjcepbh7fgsexi.appsync-api.us-east-2.amazonaws.com/graphql',
-        graphql_endpoint_iam_region: 'us-east-2',
-        graphql_headers: async () => ({
-          'x-api-key': 'da2-7oz7npsvcvdb3oukllxg3c23le'
-        })
+  // Configure Amplify
+  Amplify.configure({
+    API: {
+      GraphQL: {
+        endpoint: 'https://YOUR-APPSYNC-ENDPOINT.amazonaws.com/graphql',
+        region: 'us-east-2',
+        defaultAuthMode: 'apiKey',
+        apiKey: 'YOUR_API_KEY'
       }
+    }
+  });
+
+  // DOM references
+  const form = document.getElementById("chat-form");
+  const senderInput = document.getElementById("sender");
+  const contentInput = document.getElementById("content");
+  const messagesDiv = document.getElementById("messages");
+
+  const chatRoomId = "123";
+
+  // Log messages to the UI
+  const logMessage = (msg) => {
+    const div = document.createElement("div");
+    div.textContent = `${msg.sender}: ${msg.content}`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  };
+
+  // Subscribe to new messages
+  import { onMessageSent } from './graphql/subscriptions.js';
+  API.graphql(graphqlOperation(onMessageSent, { chatRoomId }))
+    .subscribe({
+      next: ({ value }) => {
+        const msg = value.data.onMessageSent;
+        logMessage(msg);
+      },
+      error: (err) => console.error("Subscription error:", err),
     });
 
-    const chatRoomId = "123";
+  // Send a new message on form submit
+  import { sendMessage } from './graphql/mutations.js';
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const sender = senderInput.value;
+    const content = contentInput.value;
 
-    const sendMessageMutation = /* GraphQL */ `
-      mutation SendMessage($chatRoomId: ID!, $sender: String!, $content: String!) {
-        sendMessage(chatRoomId: $chatRoomId, sender: $sender, content: $content) {
-          sender
-          content
-          timestamp
-        }
-      }
-    `;
-
-    const onMessageSentSubscription = /* GraphQL */ `
-      subscription OnMessageSent($chatRoomId: ID!) {
-        onMessageSent(chatRoomId: $chatRoomId) {
-          sender
-          content
-          timestamp
-        }
-      }
-    `;
-
-    window.addEventListener('DOMContentLoaded', async () => {
-      const messagesDiv = document.getElementById("messages");
-      const form = document.getElementById("sendForm");
-
-      const logMessage = (msg) => {
-        const div = document.createElement("div");
-        div.textContent = `${msg.sender}: ${msg.content}`;
-        messagesDiv.appendChild(div);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      };
-
-      // Subscribe to incoming messages
-      API.graphql(graphqlOperation(onMessageSentSubscription, { chatRoomId }))
-        .subscribe({
-          next: ({ value }) => {
-            const message = value.data.onMessageSent;
-            logMessage(message);
-          },
-          error: (err) => console.error("Subscription error:", err),
-        });
-
-      // Handle form submit
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-         console.log("🟢 Submit triggered");
-        const sender = document.getElementById("sender").value;
-        const content = document.getElementById("content").value;
-
-        try {
-          await API.graphql(graphqlOperation(sendMessageMutation, {
-            chatRoomId,
-            sender,
-            content
-          }));
-          document.getElementById("content").value = "";
-        } catch (err) {
-          console.error("Send failed", err);
-        }
-      });
-    });
-  </script>
+    try {
+      await API.graphql(graphqlOperation(sendMessage, {
+        chatRoomId,
+        sender,
+        content
+      }));
+      contentInput.value = "";
+    } catch (err) {
+      console.error("Send error:", err);
+    }
+  });
+</script>
   <style>
     body { font-family: Arial, sans-serif; margin: 40px; }
     #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 20px; }
