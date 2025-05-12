@@ -8,9 +8,6 @@
   import { Amplify } from 'https://esm.sh/aws-amplify@6.0.0';
   import { API, graphqlOperation } from 'https://esm.sh/aws-amplify@6.0.0/api';
 
-  // Configure Amplify
-import { Amplify } from 'aws-amplify';
-
 Amplify.configure({
   API: {
     GraphQL: {
@@ -40,6 +37,27 @@ Amplify.configure({
 
   // Subscribe to new messages
   import { onMessageSent } from './graphql/subscriptions.js';
+  const sendMessage = /* GraphQL */ `
+  mutation SendMessage($chatRoomId: ID!, $sender: String!, $content: String!) {
+    sendMessage(chatRoomId: $chatRoomId, sender: $sender, content: $content) {
+      chatRoomId
+      timestamp
+      sender
+      content
+    }
+  }
+`;
+
+const onMessageSent = /* GraphQL */ `
+  subscription OnMessageSent($chatRoomId: ID!) {
+    onMessageSent(chatRoomId: $chatRoomId) {
+      chatRoomId
+      timestamp
+      sender
+      content
+    }
+  }
+`;
   API.graphql(graphqlOperation(onMessageSent, { chatRoomId }))
     .subscribe({
       next: ({ value }) => {
